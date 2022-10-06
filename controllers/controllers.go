@@ -1,12 +1,12 @@
 package controllers
 
 import (
+	"api-rest-go/database"
 	"api-rest-go/models"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 func Home(w http.ResponseWriter, _ *http.Request) {
@@ -17,7 +17,9 @@ func Home(w http.ResponseWriter, _ *http.Request) {
 }
 
 func GetAll(w http.ResponseWriter, _ *http.Request) {
-	err := json.NewEncoder(w).Encode(models.Personalities)
+	var p []models.Personality
+	database.DB.Find(&p)
+	err := json.NewEncoder(w).Encode(p)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -26,13 +28,17 @@ func GetAll(w http.ResponseWriter, _ *http.Request) {
 func GetOneById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
-	for _, personality := range models.Personalities {
-		if strconv.Itoa(personality.Id) == id {
-			err := json.NewEncoder(w).Encode(personality)
-			if err != nil {
-				return
-			}
-		}
+	var p models.Personality
+	database.DB.First(&p, id)
+	err := json.NewEncoder(w).Encode(p)
+	if err != nil {
+		return
 	}
+}
+
+func Create(w http.ResponseWriter, r *http.Request) {
+	var personality models.Personality
+	json.NewDecoder(r.Body).Decode(&personality)
+	database.DB.Create(&personality)
+	json.NewEncoder(w).Encode(personality)
 }

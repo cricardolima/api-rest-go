@@ -12,5 +12,6 @@ func HandleRequest() {
 	r.HandleFunc("/", controllers.Home)
 	r.HandleFunc("/api/personalities", controllers.GetAll).Methods("Get")
 	r.HandleFunc("/api/personalities/{id}", controllers.GetOneById).Methods("Get")
+	r.HandleFunc("/api/personalities", controllers.Create).Methods("Post")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
